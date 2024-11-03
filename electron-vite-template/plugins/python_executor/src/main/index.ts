@@ -139,7 +139,7 @@ class PythonExecutor
           });
         };
         childProcess = spawn("python", ["-c", code], {
-          stdio: ["pipe", "pipe", "pipe", "ipc"],
+          stdio: ["pipe", "pipe", "pipe"],
           env: { FORCE_COLOR: "1" },
         });
         childProcess.stdout?.setEncoding("utf8");
@@ -194,14 +194,7 @@ class PythonExecutor
           });
         });
 
-        // 监听子进程的消息事件，获取执行结果
-        childProcess.on("message", (message) => {
-          if (message === execId) {
-            isNomalExit = true;
-            return;
-          }
-          this.executeContext?.write(message.toString());
-        });
+        
         // 监听子进程的错误事件
         childProcess.on("error", (error) => {
           isNomalExit = true;
@@ -209,16 +202,6 @@ class PythonExecutor
         });
         childProcess.on("close", (code, signal) => {
           this.executeContext?.write("子进程关闭！");
-        });
-        childProcess.on("disconnect", () => {
-          if (isNomalExit) {
-            return;
-          }
-          pluginContext.showDialog({
-            type: "error",
-            message: "执行子进程时出现错误，子进程断开连接!",
-          });
-          this.executeContext?.error("子进程断开连接！");
         });
         // 监听子进程的退出事件
         childProcess.on("exit", (code, signal) => {
@@ -230,8 +213,6 @@ class PythonExecutor
             );
           }
         });
-        // 向子进程发送用户代码
-        childProcess.send({ code, execId });
       } catch (error: any) {
         this.executeContext.error(error);
         this.executeContext = null;

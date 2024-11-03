@@ -18,6 +18,7 @@ export const createWindow = () => {
         useContentSize: true,
         width: 960,
         minWidth: 720,
+        frame: false,
         show: false,
         webPreferences: {
             devTools: process.env.NODE_ENV === "development",

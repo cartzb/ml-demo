@@ -11,13 +11,23 @@ import { processResponse } from "./dispatcher";
 import { URL } from "url";
 import props from "./promtps";
 import path from "path";
+import fs from "fs/promises";
+
 
 class ChatGptBridge extends AbstractPlugin implements Bridge, Pluginlifecycle {
   requireJs(): Promise<string | void> {
-    return new Promise((resolve) => {
-      resolve(
-        path.join("file://", path.join(__dirname, "render", "js_bridge.js"))
+    return new Promise((resolve, reject) => {
+      const path_ = path.join(
+        // "file://",
+        path.join(__dirname, "render", "js_bridge.js")
       );
+      fs.readFile(path_, "utf-8")
+        .then((script) => {
+          resolve(script);
+        })
+        .catch((err) => {
+          reject(err);
+        });
     });
   }
   onRequest(ctx: IContext): Promise<string | void> {
